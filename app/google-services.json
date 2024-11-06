@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "937212219592",
+    "firebase_url": "https://taller3-425fa-default-rtdb.firebaseio.com",
+    "project_id": "taller3-425fa",
+    "storage_bucket": "taller3-425fa.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:937212219592:android:0e2052c2e156dd916615fd",
+        "android_client_info": {
+          "package_name": "com.example.taller3_los_surfers"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDFZY_RtCwM5WJ2JAMG0sy_I7tQk1kQpsc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

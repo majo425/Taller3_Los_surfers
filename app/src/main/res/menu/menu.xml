@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+    <menu xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto">
+        <item
+            android:id="@+id/menuLogOut"
+            android:icon="@drawable/ic_logout"
+            android:title="LogOut"
+            app:showAsAction="ifRoom"/>
+        <item
+            android:id="@+id/dispo"
+            android:title="Disponible"
+            android:icon="@drawable/ic_disponible"
+            app:showAsAction="ifRoom"/>
+    <item
+        android:id="@+id/noDispo"
+        android:title="No disponible" />
+    </menu>

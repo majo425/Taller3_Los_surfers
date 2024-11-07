@@ -44,7 +44,7 @@
         </activity>
         <provider
             android:name="androidx.core.content.FileProvider"
-            android:authorities="com.icm.taller3_los_surfers.fileprovider"
+            android:authorities="com.example.taller3_los_surfers.fileprovider"
             android:exported="false"
             android:grantUriPermissions="true">
             <meta-data

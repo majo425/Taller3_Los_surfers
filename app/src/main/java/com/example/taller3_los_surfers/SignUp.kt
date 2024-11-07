@@ -187,7 +187,7 @@ class SignUp : AppCompatActivity() {
 
     private fun createImageUri(): Uri {
         val image = File(filesDir, FILE_NAME)
-        return FileProvider.getUriForFile(this, "com.icm.taller2_los_surfers.fileprovider", image)
+        return FileProvider.getUriForFile(this, "com.example.taller3_los_surfers.fileprovider", image)
     }
 
     private fun saveImageToGallery(uri: Uri) {

@@ -7,5 +7,6 @@ data class MyUser(
     val identificationNumber: String,
     val latitude: Double,
     val longitude: Double,
-    val status: String
+    val status: String,
+    val imageUrl: String
 )

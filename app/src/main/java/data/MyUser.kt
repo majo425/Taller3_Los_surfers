@@ -1,4 +1,4 @@
-package com.example.taller3_los_surfers
+package data
 
 data class MyUser(
     val name: String,

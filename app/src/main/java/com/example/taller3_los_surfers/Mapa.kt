@@ -7,6 +7,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Location
 import android.os.Bundle
+import android.os.Looper
 import android.util.Log
 import android.view.Menu
 import android.view.MenuInflater
@@ -15,13 +16,19 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.app.ActivityCompat
 import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationCallback
+import com.google.android.gms.location.LocationRequest
+import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.Priority
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.LatLngBounds
+import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -30,12 +37,8 @@ import com.google.firebase.database.ValueEventListener
 import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DatabaseReference
+import data.Localizacion
 
-data class Localizacion(
-    val latitude: Double = 0.0,
-    val longitude: Double = 0.0,
-    val name: String = ""
-)
 
 class Mapa : AppCompatActivity(), OnMapReadyCallback {
 
@@ -44,6 +47,8 @@ class Mapa : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var auth: FirebaseAuth
     private lateinit var database: DatabaseReference
     private lateinit var item: Item
+    private var ubicacionActualMarker: Marker? = null
+    private lateinit var locationCallback: LocationCallback
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -218,7 +223,7 @@ class Mapa : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
-    private fun mostrarUbicacionActual() {
+    /*private fun mostrarUbicacionActual() {
         if (ActivityCompat.checkSelfPermission(
                 this,
                 Manifest.permission.ACCESS_FINE_LOCATION
@@ -231,6 +236,8 @@ class Mapa : AppCompatActivity(), OnMapReadyCallback {
         fusedLocationClient.lastLocation.addOnSuccessListener { location: Location? ->
             if (location != null) {
                 val currentLatLng = LatLng(location.latitude, location.longitude)
+
+                Log.d("UbicacionActual", "Latitud: ${location.latitude}, Longitud: ${location.longitude}")
                 // Cambia el color del marcador usando BitmapDescriptorFactory
                 val markerOptions = MarkerOptions()
                     .position(currentLatLng)
@@ -243,6 +250,141 @@ class Mapa : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
+*/
+    /*private fun iniciarActualizacionUbicacion() {
+        val locationRequest = LocationRequest.Builder(
+            Priority.PRIORITY_HIGH_ACCURACY,
+            5000L
+        ).setMinUpdateIntervalMillis(2000L).build()
+
+        locationCallback = object : LocationCallback() {
+            override fun onLocationResult(locationResult: LocationResult) {
+                locationResult.lastLocation?.let { location ->
+                    val currentLatLng = LatLng(location.latitude, location.longitude)
+                    actualizarUbicacionFirebase(location.latitude, location.longitude)
+
+                    if (ubicacionActualMarker == null) {
+                        ubicacionActualMarker = mMap.addMarker(
+                            MarkerOptions()
+                                .position(currentLatLng)
+                                .title("Ubicación Actual")
+                                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE))
+                        )
+                    } else {
+                        ubicacionActualMarker?.position = currentLatLng
+                    }
+                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 15f))
+                }
+            }
+        }
+        if (ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return
+        }
+        fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper())
+    }*/
+
+    private fun actualizarUbicacionFirebase(latitude: Double, longitude: Double) {
+        val user = auth.currentUser
+        if (user != null) {
+            val userId = user.uid
+            database.child(userId).child("latitude").setValue(latitude)
+            database.child(userId).child("longitude").setValue(longitude)
+        }
+    }
+
+    private fun mostrarUbicacionActual() {
+        if (ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED &&
+            ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            // Solicitar permisos de ubicación si aún no se han concedido
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+                ),
+                1
+            )
+            return
+        }
+
+        val locationRequest = LocationRequest.Builder(
+            Priority.PRIORITY_HIGH_ACCURACY,
+            10000L
+        ).setMinUpdateIntervalMillis(5000L).build()
+
+        val locationCallback = object : LocationCallback() {
+            override fun onLocationResult(locationResult: LocationResult) {
+                locationResult.lastLocation?.let { location ->
+                    Log.i("UbicacionActual", "Latitud: ${location.latitude}, Longitud: ${location.longitude}")
+
+                    // Crear el objeto LatLng de la ubicación actual
+                    val currentLatLng = LatLng(location.latitude, location.longitude)
+
+                    // Actualizar o crear el marcador en el mapa
+                    if (ubicacionActualMarker == null) {
+                        ubicacionActualMarker = mMap.addMarker(
+                            MarkerOptions()
+                                .position(currentLatLng)
+                                .title("Ubicación Actual")
+                                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE))
+                        )
+                    } else {
+                        ubicacionActualMarker?.position = currentLatLng
+                    }
+                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 15f))
+
+                    // Actualizar la ubicación en Firebase
+                    val user = auth.currentUser
+                    user?.let {
+                        val userId = it.uid
+                        val updates = mapOf(
+                            "latitude" to location.latitude,
+                            "longitude" to location.longitude
+                        )
+                        database.child(userId).updateChildren(updates)
+                            .addOnSuccessListener {
+                                Log.d("UbicacionFirebase", "Ubicación actualizada en Firebase: $updates")
+                            }
+                            .addOnFailureListener { e ->
+                                Log.e("UbicacionFirebase", "Error al actualizar ubicación en Firebase: ${e.message}")
+                            }
+                    }
+                }
+            }
+        }
+
+        // Iniciar las actualizaciones de ubicación
+        val fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
+        fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper())
+    }
+
+
+    override fun onStop() {
+        super.onStop()
+        fusedLocationClient.removeLocationUpdates(object : LocationCallback() {})
+    }
+
     private fun loadMapData() {
         Log.d("Mapa", "loadMapData() fue llamada")
         val database = FirebaseDatabase.getInstance()
@@ -251,7 +393,8 @@ class Mapa : AppCompatActivity(), OnMapReadyCallback {
         ref.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 if (snapshot.exists()) {
-                    var firstLocation: LatLng? = null
+                    val boundsBuilder = LatLngBounds.Builder()
+                    //var firstLocation: LatLng? = null
                     Log.d("Firebase", "Datos recibidos: ${snapshot.childrenCount} lugares encontrados.")
 
                     // Recorrer los puntos de interés y agregar marcadores
@@ -263,18 +406,19 @@ class Mapa : AppCompatActivity(), OnMapReadyCallback {
                             mMap.addMarker(
                                 MarkerOptions().position(latLng).title(localizacion.name)
                             )
-
+                            boundsBuilder.include(latLng)
                             // Guardar la primera ubicación para mover la cámara
-                            if (firstLocation == null) {
+                            /*if (firstLocation == null) {
                                 firstLocation = latLng
-                            }
+                            }*/
                         }
                     }
-
+                    val bounds = boundsBuilder.build()
+                    mMap.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds, 100))
                     // Si tenemos al menos un marcador, mover la cámara
-                    firstLocation?.let {
+                    /*firstLocation?.let {
                         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(it, 12f))
-                    }
+                    }*/
                 } else {
                     Log.d("Firebase", "No hay datos disponibles.")
                 }
@@ -285,4 +429,5 @@ class Mapa : AppCompatActivity(), OnMapReadyCallback {
             }
         })
     }
+
 }

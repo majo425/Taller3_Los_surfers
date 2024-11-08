@@ -6,3 +6,5 @@ Integrantes:
 #### Jocelyne González Hernández
 
 ### Video demostrativo de la aplicación:
+
+https://youtu.be/iKFLImC5Dao?si=Ud8i__qJYpmiS0DY

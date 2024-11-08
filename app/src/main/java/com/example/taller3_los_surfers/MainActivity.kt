@@ -25,11 +25,9 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        // Inflar el binding y configurar el contenido de la vista
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // Initialize Firebase Auth
         auth = Firebase.auth
 
         binding.registro.setOnClickListener {
@@ -43,25 +41,22 @@ class MainActivity : AppCompatActivity() {
     }
     override fun onStart() {
         super.onStart()
-        // Verificar si ya hay un usuario autenticado
+        //Verificar si ya hay un usuario autenticado
         val currentUser = auth.currentUser
         updateUI(currentUser)
     }
 
+    //Iniciar sesión
     private fun signInUser(email: String, password: String) {
         if (validateForm()) {
             auth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this) { task ->
                     if (task.isSuccessful) {
-                        // Inicio de sesión exitoso, redirigir al mapa
-                        Log.d(TAG, "signInWithEmail:success")
                         val intent = Intent(this, Mapa::class.java)
                         intent.putExtra("user", auth.currentUser?.email)
                         startActivity(intent)
-                        finish() // Finalizar la actividad de inicio de sesión
+                        finish()
                     } else {
-                        // Error en el inicio de sesión
-                        Log.w(TAG, "signInWithEmail:failure", task.exception)
                         Toast.makeText(this, "Fallo en la autenticación.", Toast.LENGTH_SHORT).show()
                         updateUI(null)
                     }
@@ -74,13 +69,14 @@ class MainActivity : AppCompatActivity() {
             val intent = Intent(this, Mapa::class.java)
             intent.putExtra("user", currentUser.email)
             startActivity(intent)
-            finish() // Finalizar MainActivity ya que el usuario está autenticado
+            finish()
         } else {
             binding.emailAddress.setText("")
             binding.contrasena.setText("")
         }
     }
 
+    //Validar formulario de registro
     private fun validateForm(): Boolean {
         val email = binding.emailAddress.text.toString()
         val password = binding.contrasena.text.toString()

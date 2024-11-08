@@ -11,7 +11,9 @@
             android:title="Disponible"
             android:icon="@drawable/ic_disponible"
             app:showAsAction="ifRoom"/>
+
     <item
-        android:id="@+id/noDispo"
-        android:title="No disponible" />
+        android:id="@+id/usuarios"
+        android:title="Ver usuarios"
+        />
     </menu>

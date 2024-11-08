@@ -14,12 +14,12 @@
         android:layout_height="664dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/barra"
-        tools:context="Mapa" />" />
+        tools:context="Mapa" />
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/barra"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        />
+        tools:ignore="MissingConstraints" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

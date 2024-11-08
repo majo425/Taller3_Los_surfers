@@ -128,8 +128,9 @@ class SignUp : AppCompatActivity() {
             }
         }
     }
+
+    //Guardar imagen de perfil
     private fun uploadProfileImage(onSuccess: (Uri) -> Unit) {
-        // Referencia de Firebase Storage para la imagen de perfil
         val storageRef = storage.reference.child("profile_images/${auth.currentUser?.uid}.jpg")
         storageRef.putFile(imageUrl)
             .addOnSuccessListener { taskSnapshot ->
@@ -142,6 +143,7 @@ class SignUp : AppCompatActivity() {
             }
     }
 
+    //Verificar permisos de ubicación
     private fun verificarPermisosUbicacion() {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
             ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -152,6 +154,7 @@ class SignUp : AppCompatActivity() {
         }
     }
 
+    //Mostrar ubicación actual
     private fun mostrarUbicacionActual() {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
             ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
@@ -164,6 +167,7 @@ class SignUp : AppCompatActivity() {
         }
     }
 
+    //Validar permisos
     private fun checkAndRequestPermissions(permissions: Array<String>, requestCode: Int): Boolean {
         val permissionsToRequest = permissions.filter {
             ContextCompat.checkSelfPermission(this, it) != PackageManager.PERMISSION_GRANTED
@@ -177,17 +181,20 @@ class SignUp : AppCompatActivity() {
         }
     }
 
+    //Abrir galeria
     private fun openGallery() {
         if (checkAndRequestPermissions(arrayOf(android.Manifest.permission.READ_EXTERNAL_STORAGE), GALLERY_REQUEST_CODE)) {
             galleryContract.launch("image/*")
         }
     }
 
+    //Crear uri de la imagen
     private fun createImageUri(): Uri {
         val image = File(filesDir, FILE_NAME)
         return FileProvider.getUriForFile(this, "com.example.taller3_los_surfers.fileprovider", image)
     }
 
+    //Guardar imagen en la galeria
     private fun saveImageToGallery(uri: Uri) {
         val contentValues = ContentValues().apply {
             put(MediaStore.Images.Media.DISPLAY_NAME, "IMG_${System.currentTimeMillis()}.jpg")

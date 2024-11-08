@@ -32,8 +32,15 @@
             android:name=".Mapa"
             android:exported="false" />
         <activity
+            android:name=".MapUsers"
+            android:exported="false" />
+        <activity
+            android:name=".UsuariosDisponibles"
+            android:exported="false" />
+        <activity
             android:name=".SignUp"
             android:exported="false" />
+        <service android:name=".ServicioCambiosUsuario"/>
         <activity
             android:name=".MainActivity"
             android:exported="true">
